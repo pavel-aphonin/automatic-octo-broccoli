@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model organisation {
+  id          Int         @id @default(autoincrement())
+  created_at  DateTime    @default(now())
+  updated_at  DateTime?
+  name        String
+}
+
+model user {
+  id          Int         @id @default(autoincrement())
+  created_at  DateTime    @default(now())
+  updated_at  DateTime?
+  first_name  String
+  last_name   String
+  email       String      @unique
+  password    String
+  state       State
+  
+  organisation_id Int?
+}
+
+model blocks {
+  id          Int         @id @default(autoincrement())
+  created_at  DateTime    @default(now())
+  updated_at  DateTime?
+  name        String
+  content     String
+
+  created_by  Int
+}
+
+model children {
+  id            Int         @id @default(autoincrement())
+  blocks_id     Int
+  children_id   Int
+}
+
+model attributes {
+  id          Int         @id @default(autoincrement())
+  name        String
+}
+
+model attributes_value {
+  id            Int         @id @default(autoincrement())
+  blocks_id     Int
+  attribute_id  Int
+  value         String
+}
+
+model docs {
+  id          Int         @id @default(autoincrement())
+  created_at  DateTime    @default(now())
+  updated_at  DateTime?
+  created_by  Int
+  name        String
+  content     String
+  status      Status
+  is_checked  Boolean
+}
+
+model docs_children {
+  id            Int         @id @default(autoincrement())
+  dock_id       Int
+  children_id   Int
+}
+
+model docs_attributes {
+  id          Int         @id @default(autoincrement())
+  name        String
+}
+
+model docs_attributes_value {
+  id                  Int         @id @default(autoincrement())
+  docs_id             Int
+  docs_attribute_id   Int
+  value               String
+}
+
+model docs_comment {
+  id          Int         @id @default(autoincrement())
+  created_at  DateTime    @default(now())
+  updated_at  DateTime?
+  blocks_id   Int
+  comment     String
+}
+
+enum State {
+  CREATED
+  ACTIVE
+  INACTIVE
+}
+
+enum Status {
+  DRAFT
+  WIP
+  FINISHED
+}
