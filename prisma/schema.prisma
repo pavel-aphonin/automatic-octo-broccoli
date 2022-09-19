@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model organisation {
+  id            Int         @id @default(autoincrement())
+  created_at    DateTime    @default(now())
+  name          String
+  
+  projects      project[]
+  users         user[]
+}
+
+model project {
+  id            Int           @id @default(autoincrement())
+  created_at    DateTime      @default(now())
+  name          String
+
+  organisation      organisation  @relation(fields: [organisation_id], references: [id])
+  organisation_id   Int
+  docs              docs[]
+}
+
+model user {
+  id            Int       @id @default(autoincrement())
+  created_at    DateTime  @default(now())
+  first_name    String?
+  last_name     String?
+  email         String    @unique
+  password      String
+  state         State     @default(CREATED)
+
+  organisation      organisation?  @relation(fields: [organisation_id], references: [id])
+  organisation_id   Int?
+  docs              docs[]
+  session           session[]
+}
+
+model session {
+  id            Int       @id @default(autoincrement())
+  created_at    DateTime  @default(now())
+
+  user          user  @relation(fields: [user_id], references: [id])
+  user_id       Int
+}
+
+model docs {
+  id          Int         @id @default(autoincrement())
+  created_at  DateTime    @default(now())
+  name        String
+  content     String
+  status      Status      @default(DRAFT)
+  is_checked  Boolean
+  parent_id   Int?
+  relation    Relation    @default(STEP)
+
+  user        user        @relation(fields: [created_by], references: [id])
+  created_by  Int
+
+  project     project     @relation(fields: [project_id], references: [id])
+  project_id  Int
+}
+
+enum State {
+  CREATED
+  ACTIVE
+  INACTIVE
+}
+
+enum Status {
+  DRAFT
+  WIP
+  FINISHED
+}
+
+enum Relation {
+  CATALOG
+  TEST
+  STEP
+}
